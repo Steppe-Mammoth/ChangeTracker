@@ -1,5 +1,4 @@
 # core.py — основний код для changetracker
-import copy
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
