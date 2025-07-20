@@ -1,16 +1,16 @@
 # ChangeTracker — Python Change Tracking Utility
 
-ChangeTracker — це бібліотека для відстеження змін у Python-об'єктах будь-якої складності (у т.ч. вкладені структури, списки, словники, кастомні класи).
+ChangeTracker is a library for tracking changes in Python objects of any complexity (including nested structures, lists, dicts, and custom classes).
 
-## Встановлення
+## Installation
 https://pypi.org/project/changetracker/
 ```bash
 pip install changetracker
 ```
 
-## Швидкий старт
+## Quick Start
 
-### 1. Наслідуйте свій клас від ChangeTracker
+### 1. Inherit your class from ChangeTracker
 
 ```python
 from changetracker import ChangeTracker
@@ -19,7 +19,7 @@ class Address(ChangeTracker):
     def __init__(self, city, street):
         self.city = city
         self.street = street
-        super().__init__()  # обов'язковий виклик super().__init__() в кінці __init__
+        super().__init__()  # required call to super().__init__() at the end of __init__
 
 class User(ChangeTracker):
     def __init__(self, name, age, address):
@@ -27,11 +27,11 @@ class User(ChangeTracker):
         self.age = age
         self.address = address
         self.hobbies = ['reading']
-        super().__init__()  # обов'язковий виклик super().__init__() в кінці __init__ 
+        super().__init__()  # required call to super().__init__() at the end of __init__
 ```
 ---
 
-### 2. Відстежуйте актуальний diff .get_changed_data()
+### 2. Track current changes with .get_changed_data()
 ```python
 from changetracker import ChangeTrackerLogs, ChangeTrackerLog
 
@@ -39,28 +39,27 @@ def print_diff(logsData: ChangeTrackerLogs):
     for log in logsData.data:
         log: ChangeTrackerLog
         print(f"{log.field:10} | {log.action.value:8} | old: {log.old_value} | new: {log.new_value}")
-
 ```
 
 ```python
 user = User('Ivan', 25, Address('Kyiv', 'Khreshchatyk'))
 
-# user: Зміна значення
+# user: Change value
 user.age = 26
-# user: Додавання нового поля
+# user: Add new field
 user.email = 'ivan@example.com'
-# user: Зміна у списку
+# user: Change in list
 user.hobbies.append('sports')
-# user: Видалення поля 
+# user: Delete field
 
-# user.address: Видалення поля
+# user.address: Delete field
 del user.address.street
-# user.address: Зміна поля
+# user.address: Change field
 user.address.city = 'Lviv'
 ```
 
 ```python
-# user: Відображаємо наявні зміни з останнього .commit()
+# user: Show changes since last .commit()
 print_diff(user.get_changed_data())
 ```
 **Output:**
@@ -73,7 +72,7 @@ hobbies    | changed  | old: ['reading'] | new: ['reading', 'sports']
 ```
 
 ```python
-# user.address: Відображаємо наявні зміни з останнього .commit()
+# user.address: Show changes since last .commit()
 print_diff(user.address.get_changed_data())
 ```
 **Output:**
@@ -83,16 +82,14 @@ street     | deleted  | old: 'Khreshchatyk' | new: None
 city       | changed  | old: 'Kyiv' | new: 'Lviv'
 ```
 
-
-### Фіксація змін .commit()
+### Commit changes with .commit()
 ```python
-# Збереження всіх змін. Всі попередні записи з методу .get_changed_data() - скидаються
+# Save all changes. All previous entries from .get_changed_data() are cleared
 user.commit()
 
 user.address.city = "Hostomel"
 
 print_diff(user.address.get_changed_data())
-
 ```
 **Output:**
 ```python
@@ -101,17 +98,17 @@ city       | changed  | old: 'Lviv' | new: 'Hostomel'
 ```
 ---
 
-### Повний журнал змін .get_change_log()
+### Full change log with .get_change_log()
 
-`get_change_log` повертає повний журнал усіх зафіксованих змін (історію) через .commit(), а не лише поточні відмінності як `get_changed_data`.
+`get_change_log` returns the full history of committed changes (not just current diffs like `get_changed_data`).
 
 ```python
-# Збереження всіх змін. Всі попередні записи з методу .get_changed_data() - скидаються
+# Save all changes. All previous entries from .get_changed_data() are cleared
 user.commit()
 ```
 
 ```python
-# user: Відображаємо всю історію змін
+# user: Show full change history
 for log in user.get_change_log().data:
     print(f"{log.timestamp:%Y-%m-%d %H:%M:%S} | {log.commit_id} | {log.field:7} | {log.action.value:9} | old: {log.old_value} | new: {log.new_value}")
 ```
@@ -132,7 +129,7 @@ for log in user.get_change_log().data:
 ```
 
 ```python
-# user.address: Відображаємо всю історію змін
+# user.address: Show full change history
 for log in user.address.get_change_log().data:
     print(f"{log.timestamp:%Y-%m-%d %H:%M:%S} | {log.commit_id} | {log.field:7} | {log.action.value:9} | old: {log.old_value} | new: {log.new_value}")
 ```
@@ -148,17 +145,15 @@ for log in user.address.get_change_log().data:
 2025-07-21 01:11:52 | e59e6414-7e79-4e0f-8395-ec27d974ffe1 | city    | changed   | old: 'Lviv' | new: 'Hostomel'
 ```
 
-> **Примітка:** get_change_log показує всі зміни, які були зафіксовані через commit().
+> **Note:** `get_change_log` shows all changes that were committed via `.commit()`.
 
-## Особливості
-- Відстеження змін будь-якої вкладеності
-- Підтримка list, dict, кастомних класів
-- Логування типу зміни: створення, видалення, зміна
-- Гнучка фільтрація полів (public/private/all)
-- Рекурсивне відстеження вкладених ChangeTracker об'єктів
-- Повна історія змін з timestamp та commit_id
+## Features
+- Tracks changes at any depth
+- Supports list, dict, and custom classes
+- Logs type of change: create, delete, update
+- Flexible field filtering (public/private/all)
+- Recursively tracks nested ChangeTracker objects
+- Full change history with timestamp and commit_id
 
-## Ліцензія
-MIT 
-
---- 
+## License
+MIT
