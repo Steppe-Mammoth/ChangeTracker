@@ -1,14 +1,14 @@
-# TrackChanges — Python Change Tracking Utility
+# ChangeTracker — Python Change Tracking Utility
 
-TrackChanges — це гнучка бібліотека для відстеження змін у Python-об'єктах будь-якої складності (у т.ч. вкладені структури, списки, словники, кастомні класи).
+ChangeTracker — це гнучка бібліотека для відстеження змін у Python-об'єктах будь-якої складності (у т.ч. вкладені структури, списки, словники, кастомні класи).
 
 ## Встановлення
 
-Склонуйте репозиторій або додайте trackchanges у свій проєкт:
+Склонуйте репозиторій або додайте changetracker у свій проєкт:
 
 ```bash
+!todo
 pip install <your-package-if-published>
-# або вручну додайте trackchanges/ у PYTHONPATH
 ```
 
 ## Швидкий старт
@@ -16,7 +16,7 @@ pip install <your-package-if-published>
 ### 1. Наслідуйте свій клас від ChangeTracker
 
 ```python
-from trackchanges.core import ChangeTracker
+from changetracker import ChangeTracker
 
 class User(ChangeTracker):
     def __init__(self, name, age):
@@ -28,7 +28,76 @@ class User(ChangeTracker):
 ### 2. Відстежуйте актуальний diff
 
 ```python
-from trackchanges.core import ChangeTracker
+user = User('Ivan', 25)
+user.commit()  # Зберігаємо початковий стан
+
+user.age = 26
+changes = user.get_changed_data()
+for log in changes.data:
+    print(f"Поле: {log.field}, було: {log.old_value}, стало: {log.new_value}, тип зміни: {log.action}")
+```
+**Output:**
+```
+Поле: age, було: 25, стало: 26, тип зміни: ChangeTrackerAction.CHANGED
+```
+
+### 3. Підтримка вкладених структур
+
+```python
+class Address(ChangeTracker):
+    def __init__(self, city):
+        self.city = city
+        super().__init__()
+
+user = User('Ivan', 25)
+user.address = Address('Kyiv')
+user.commit()
+user.address.city = 'Lviv'
+changes = user.get_changed_data()
+for log in changes.data:
+    print(log)
+```
+**Output:**
+```
+ChangeTrackerLog(field='address', old_value={'city': 'Kyiv'}, new_value={'city': 'Lviv'}, action=<ChangeTrackerAction.CHANGED: 'changed'>, ...)
+```
+
+### 4. Підтримка list, dict, кастомних класів
+
+```python
+user.hobbies = ['reading', 'music']
+user.commit()
+user.hobbies.append('sports')
+changes = user.get_changed_data()
+print(changes.data[0])
+```
+**Output:**
+```
+ChangeTrackerLog(field='hobbies', old_value=['reading', 'music'], new_value=['reading', 'music', 'sports'], action=<ChangeTrackerAction.CHANGED: 'changed'>, ...)
+```
+
+```python
+# Для кастомних класів:
+class Custom:
+    def __init__(self, x):
+        self.x = x
+user.custom = Custom(5)
+user.commit()
+user.custom.x = 10
+changes = user.get_changed_data()
+print(changes.data[0])
+```
+**Output:**
+```
+ChangeTrackerLog(field='custom', old_value={'x': 5}, new_value={'x': 10}, action=<ChangeTrackerAction.CHANGED: 'changed'>, ...)
+```
+
+---
+
+## Великий приклад: різні типи змін та якісний output
+
+```python
+from changetracker import ChangeTracker
 
 class Address(ChangeTracker):
     def __init__(self, city, street):
@@ -45,7 +114,6 @@ class User(ChangeTracker):
         super().__init__()
 
 user = User('Ivan', 25, Address('Kyiv', 'Khreshchatyk'))
-
 # Зміна значення
 user.age = 26
 # Додавання нового поля
@@ -57,20 +125,6 @@ user.address.city = 'Lviv'
 # Зміна у списку
 user.hobbies.append('sports')
 
-changes = user.get_changed_data()
-for log in changes.data:
-    print(f"{log.field:10} | {log.action.value:8} | old: {log.old_value} | new: {log.new_value}")
-```
-**Output:**
-```
-age        | changed  | old: 25 | new: 26
-email      | created  | old: None | new: ivan@example.com
-street     | deleted  | old: Khreshchatyk | new: None
-address    | changed  | old: {'city': 'Kyiv', 'street': 'Khreshchatyk'} | new: {'city': 'Lviv'}
-hobbies    | changed  | old: ['reading'] | new: ['reading', 'sports']
-```
-
-```python
 # Збереження всіх змін
 user.commit()
 
@@ -83,15 +137,12 @@ print(changes)
 ```
 ---
 
-
----
-
 ### Повний журнал змін (get_change_log)
 
 `get_change_log` повертає повний журнал усіх зафіксованих змін (історію), а не лише поточні відмінності як `get_changed_data`.
 
 ```python
-from trackchanges.core import ChangeTracker
+from changetracker import ChangeTracker
 
 class User(ChangeTracker):
     def __init__(self, name, age):
@@ -122,7 +173,6 @@ for log in user.get_change_log().data:
 - Підтримка list, dict, кастомних класів
 - Логування типу зміни: створення, видалення, зміна
 - Гнучка фільтрація полів (public/private/all)
-
 
 ## Ліцензія
 MIT 

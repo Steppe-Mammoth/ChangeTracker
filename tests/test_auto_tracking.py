@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from trackchanges.core import ChangeTracker, ChangeTrackerIncludeMode
+# Заміна імпорту на нову назву пакету
+from changetracker.core import ChangeTracker, ChangeTrackerIncludeMode
 
 # --- Простий трекінг простих типів ---
 class Simple(ChangeTracker):
