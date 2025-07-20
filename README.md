@@ -3,10 +3,9 @@
 ChangeTracker — це бібліотека для відстеження змін у Python-об'єктах будь-якої складності (у т.ч. вкладені структури, списки, словники, кастомні класи).
 
 ## Встановлення
-
+https://pypi.org/project/changetracker/
 ```bash
-pip install <your-package-if-published>
-# або вручну додайте trackchanges/ у PYTHONPATH
+pip install changetracker
 ```
 
 ## Швидкий старт
