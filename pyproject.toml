@@ -7,11 +7,11 @@ name = "changetracker"
 version = "0.1.0"
 description = "Python change tracking utility with nested dict/list support and init/change log separation."
 authors = [
-    { name="MC Andrew", email="qwqwqww505@yahoo.com" }
+    { name="Steppe_Mammoth", email="qwqwqww505@yahoo.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 
 [project.urls]
-Homepage = "https://github.com/Steppe-Mammoth/trackerchange" 
+Homepage = "https://github.com/Steppe-Mammoth/ChangeTracker" 
