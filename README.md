@@ -13,7 +13,7 @@ pip install changetracker
 ### 1. Inherit your class from ChangeTracker
 
 ```python
-from changetracker import ChangeTracker
+from changetracker import ChangeTracker, ChangeTrackerLogs, ChangeTrackerLog
 
 class Address(ChangeTracker):
     def __init__(self, city, street):
@@ -28,19 +28,15 @@ class User(ChangeTracker):
         self.address = address
         self.hobbies = ['reading']
         super().__init__()  # required call to super().__init__() at the end of __init__
-```
----
-
-### 2. Track current changes with .get_changed_data()
-```python
-from changetracker import ChangeTrackerLogs, ChangeTrackerLog
 
 def print_diff(logsData: ChangeTrackerLogs):
     for log in logsData.data:
         log: ChangeTrackerLog
         print(f"{log.field:10} | {log.action.value:8} | old: {log.old_value} | new: {log.new_value}")
 ```
+---
 
+### 2. Track current changes with .get_changed_data()
 ```python
 user = User('Ivan', 25, Address('Kyiv', 'Khreshchatyk'))
 
